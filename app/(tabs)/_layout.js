@@ -4,6 +4,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Fontisto } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 
 export default function Layout() {
   const [count, setCount] = useState(0);
@@ -77,6 +78,20 @@ export default function Layout() {
               <Fontisto name="doctor" size={24} color="#7CB9E8" />
             ) : (
               <Fontisto name="doctor" size={24} color="black" />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="music"
+        options={{
+          tabBarLabel: "music",
+          tabBarLabelStyle: { color: "#7CB9E8" },
+          headerShown: false,
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <Entypo name="music" size={24} color="#7CB9E8" />
+            ) : (
+              <Entypo name="music" size={24} color="black" />
             ),
         }}
       />

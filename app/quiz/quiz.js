@@ -1,68 +1,57 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Button } from "react-native";
 import { quizQuestions } from "./quiz-questions";
+// ... other imports
+import { useRouter } from "expo-router";
 
-const shuffleArray = (array) => {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-};
+const Quiz = () => {
+  const router = useRouter();
 
-const Quiz = ({ navigation }) => {
   const [questions, setQuestions] = useState(quizQuestions);
   const [ques, setQues] = useState(0);
-  const [options, setOptions] = useState([]);
+  const [options] = useState(["Never", "Rarely", "Sometimes", "Frequently"]);
   const [score, setScore] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const getQuiz = async () => {
-      setIsLoading(true);
-      const url =
-        "https://opentdb.com/api.php?amount=10&type=multiple&encode=url3986";
-      const res = await fetch(url);
-      const data = await res.json();
-      setQuestions(data.results);
-      setOptions(generateOptionsAndShuffle(data.results[0]));
+    setTimeout(() => {
       setIsLoading(false);
-    };
-    getQuiz();
+    }, 1000);
   }, []);
+
+  const showResultsHandler = () => {
+    if (score > 7) {
+      router.replace("/(tabs)/consultants");
+    } else if (score > 3) {
+      router.replace("/(tabs)/home");
+    } else {
+      router.replace("/(tabs)/music");
+    }
+  };
 
   const handleNextPress = () => {
     setQues(ques + 1);
-    setOptions(generateOptionsAndShuffle(questions[ques + 1]));
   };
-
-  const generateOptionsAndShuffle = (_question) => {
-    const options = [..._question.incorrect_answers];
-    options.push(_question.correct_answer);
-
-    shuffleArray(options);
-
-    return options;
-  };
-
-  const handlSelectedOption = (_option) => {
-    if (_option === questions[ques].correct_answer) {
-      setScore(score + 10);
+  const handleSelectedOption = (selectedOption) => {
+    if (selectedOption === "Frequently") {
+      setScore(score + 1);
     }
-    if (ques !== 9) {
-      setQues(ques + 1);
-      setOptions(generateOptionsAndShuffle(questions[ques + 1]));
-    }
-    if (ques === 9) {
-      handleShowResult();
-    }
+    handleNextPress();
   };
-
-  const handleShowResult = () => {
-    navigation.navigate("Result", {
-      score: score,
-    });
-  };
-
+  const [resultText] = useState([
+    "Seek Help, please contact consultant",
+    "Have some clear goals,Go set them",
+    "your are okay just increase your focus go listen meditative music",
+  ]);
+  if (ques == questions.length) {
+    let resultTextIndex = score > 7 ? 0 : score > 3 ? 1 : 2;
+    return (
+      <View style={styles.container}>
+        <Text>{resultText[resultTextIndex]}</Text>
+        <Button title="See Results" onPress={showResultsHandler} />
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       {isLoading ? (
@@ -72,18 +61,16 @@ const Quiz = ({ navigation }) => {
       ) : (
         <View style={styles.parent}>
           <View style={styles.top}>
-            <Text style={styles.question}>
-              Q. {decodeURIComponent(questions[ques].question)}
-            </Text>
+            <Text style={styles.question}>Q. {questions[ques]}</Text>
           </View>
           <View style={styles.options}>
             {options.map((option, index) => (
               <TouchableOpacity
                 key={index}
                 style={styles.optionButtom}
-                onPress={() => handlSelectedOption(option)}
+                onPress={() => handleSelectedOption(option)}
               >
-                <Text style={styles.option}>{decodeURIComponent(option)}</Text>
+                <Text style={styles.option}>{option}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -96,7 +83,7 @@ const Quiz = ({ navigation }) => {
             {ques === 9 && (
               <TouchableOpacity
                 style={styles.button}
-                onPress={handleShowResult}
+                // onPress={handleShowResult}
               >
                 <Text style={styles.buttonText}>SHOW RESULTS</Text>
               </TouchableOpacity>
