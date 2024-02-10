@@ -13,6 +13,8 @@ const index = () => {
   const router = useRouter();
   const handleLoginButtonClick = () => {
     // will take this to login
+    console.log("button pressed");
+    router.replace("/quiz");
   };
   return (
     <View style={styles.container}>
